@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="vendor-analytics">
+    <output-path>$PROJECT_DIR$/out/artifacts/vendor_analytics</output-path>
+    <root id="archive" name="vendor-analytics.jar">
+      <element id="archive" name="vendor_analytics.jar">
+        <element id="module-output" name="vendor-analytics" />
+      </element>
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+    </root>
+  </artifact>
+</component>
