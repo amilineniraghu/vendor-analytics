@@ -141,11 +141,11 @@ public class VendorAnalytics {
                             String thirdLevelManager = secondLevelManagers.get(k);
                             ArrayList<String> thirdLevelManagers = filterEmployeesByType(empToManagerMap.get(thirdLevelManager), "regular");
                             if (thirdLevelManagers != null && thirdLevelManagers.size() > 0) {
+                                ArrayList<String> directVendorEmployees3 = filterEmployeesByType(empToManagerMap.get(thirdLevelManager), "vendor");
+                                if (directVendorEmployees3.size() > 0) {
+                                    appendEmployeeRowsDirectlyUnderLevel3(firstLevelManager, secondLevelManager, thirdLevelManager, directVendorEmployees3);
+                                }
                                 for (int l = 0; l < thirdLevelManagers.size(); l++) {
-                                    ArrayList<String> directVendorEmployees3 = filterEmployeesByType(empToManagerMap.get(thirdLevelManager), "vendor");
-                                    if (directVendorEmployees3.size() > 0) {
-                                        appendEmployeeRowsDirectlyUnderLevel3(firstLevelManager, secondLevelManager, thirdLevelManager, directVendorEmployees3);
-                                    }
                                     String fourthLevelManger = thirdLevelManagers.get(l);
                                     appendFourthLevelRows(firstLevelManager, secondLevelManager, thirdLevelManager, fourthLevelManger);
                                 }
