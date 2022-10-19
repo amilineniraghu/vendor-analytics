@@ -4,9 +4,7 @@ import com.vendoranalytics.xyz.modal.Employee;
 import com.vendoranalytics.xyz.modal.EmployeeRow;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,15 +27,18 @@ public class VendorAnalytics {
     HashMap<String, Employee> employeeHashMap = new HashMap<>();
     ArrayList<EmployeeRow> employeeArrayList = new ArrayList<>();
     LinkedHashMap<String, ArrayList<String>> empToManagerMap = new LinkedHashMap<>();
-    HashMap<String, ArrayList<String>> offShoreMap = new HashMap<>();
-    HashMap<String, ArrayList<String>> onsiteMap = new HashMap<>();
+    HashMap<String, ArrayList<String>> indiaLocationMap = new HashMap<>();
+    HashMap<String, ArrayList<String>> usLocationMap = new HashMap<>();
+    HashMap<String, ArrayList<String>> caLocationMap = new HashMap<>();
+    HashMap<String, ArrayList<String>> otherLocationMap = new HashMap<>();
     ArrayList<String> offShoreLocations = new ArrayList<>();
     HashMap<String, HeadCount> returnMap = new LinkedHashMap<>();
 
     EmployeeRow employeeRow;
-    private List<String> users;
-    private String inDirectoryPath;
-    private String outDirectoryPath;
+    Location location = new Location();
+    private final List<String> users;
+    private final String inDirectoryPath;
+    private final String outDirectoryPath;
 
     public VendorAnalytics(String inDirectoryPath, String outDirectoryPath, List<String> users) {
         this.inDirectoryPath = inDirectoryPath;
@@ -80,15 +81,17 @@ public class VendorAnalytics {
             rowhead.createCell(3).setCellValue("L3");
             rowhead.createCell(4).setCellValue("L4");
             rowhead.createCell(5).setCellValue("Vendor Name");
-            rowhead.createCell(6).setCellValue("HC On");
-            rowhead.createCell(7).setCellValue("HC Off");
-            rowhead.createCell(8).setCellValue("Key skills");
-            rowhead.createCell(9).setCellValue("Key service Offering");
-            rowhead.createCell(10).setCellValue("why Cisco is working with this supplier ?");
-            rowhead.createCell(11).setCellValue("Current TCO");
-            rowhead.createCell(12).setCellValue("LTI Target Y/N");
-            rowhead.createCell(13).setCellValue("LTI proposed TCO");
-            rowhead.createCell(14).setCellValue("Why LTI");
+            rowhead.createCell(6).setCellValue("HC India");
+            rowhead.createCell(7).setCellValue("HC US");
+            rowhead.createCell(8).setCellValue("HC Canada");
+            rowhead.createCell(9).setCellValue("HC Others");
+            rowhead.createCell(10).setCellValue("Key skills");
+            rowhead.createCell(11).setCellValue("Key service Offering");
+            rowhead.createCell(12).setCellValue("why Cisco is working with this supplier ?");
+            rowhead.createCell(13).setCellValue("Current TCO");
+            rowhead.createCell(14).setCellValue("LTI Target Y/N");
+            rowhead.createCell(15).setCellValue("LTI proposed TCO");
+            rowhead.createCell(16).setCellValue("Why LTI");
 
             for (int i = 0; i < employeeArrayList.size(); i++) {
                 XSSFRow row = sheet.createRow((short) i + 1);
@@ -96,15 +99,30 @@ public class VendorAnalytics {
                 row.createCell(1).setCellValue(employeeArrayList.get(i).getLevel1());
                 row.createCell(2).setCellValue(employeeArrayList.get(i).getLevel2());
                 row.createCell(3).setCellValue(employeeArrayList.get(i).getLevel3());
-                row.createCell(4).setCellValue(employeeArrayList.get(i).getLevel4());
+
+                XSSFFont fontItalic = workbook.createFont();
+                fontItalic.setItalic(true);
+                XSSFRichTextString cellValue = new XSSFRichTextString();
+                cellValue.append(employeeArrayList.get(i).getLevel4(), fontItalic);
+                row.createCell(4).setCellValue(cellValue);
+
                 row.createCell(5).setCellValue(employeeArrayList.get(i).getVendor());
-                if (employeeArrayList.get(i).getHeadCountOffshore() != null) {
-                    row.createCell(6).setCellValue(employeeArrayList.get(i).getHeadCountOffshore());
-                }
-                if (employeeArrayList.get(i).getHeadCountOnsite() != null) {
-                    row.createCell(7).setCellValue(employeeArrayList.get(i).getHeadCountOnsite());
+
+                if (employeeArrayList.get(i).getIndiaCount() != null) {
+                    row.createCell(6).setCellValue(employeeArrayList.get(i).getIndiaCount());
                 }
 
+                if (employeeArrayList.get(i).getUsCount() != null) {
+                    row.createCell(7).setCellValue(employeeArrayList.get(i).getUsCount());
+                }
+
+                if (employeeArrayList.get(i).getCaCount() != null) {
+                    row.createCell(8).setCellValue(employeeArrayList.get(i).getCaCount());
+                }
+
+                if (employeeArrayList.get(i).getOtherCount() != null) {
+                    row.createCell(9).setCellValue(employeeArrayList.get(i).getOtherCount());
+                }
             }
 
             for (int i = 0; i < 14; i++) {
@@ -175,8 +193,10 @@ public class VendorAnalytics {
                 employee4Row.setLevel3(employeeHashMap.get(thirdLevelManager).getFullNameWithTitle());
                 employee4Row.setLevel4(employeeHashMap.get(fourthLevelManger).getFullNameWithTitle());
                 employee4Row.setVendor(entry.getKey());
-                employee4Row.setHeadCountOffshore(entry.getValue().getOffShore());
-                employee4Row.setHeadCountOnsite(entry.getValue().getOnSite());
+                employee4Row.setIndiaCount(entry.getValue().getIndiaCount());
+                employee4Row.setUsCount(entry.getValue().getUsCount());
+                employee4Row.setCaCount(entry.getValue().getCaCount());
+                employee4Row.setOtherCount(entry.getValue().getOtherCount());
                 employeeArrayList.add(employee4Row);
             }
         } else {
@@ -201,8 +221,10 @@ public class VendorAnalytics {
                 employee3Row.setLevel2(employeeHashMap.get(secondLevelManager).getFullNameWithTitle());
                 employee3Row.setLevel3(employeeHashMap.get(thirdLevelManager).getFullNameWithTitle());
                 employee3Row.setVendor(entry.getKey());
-                employee3Row.setHeadCountOffshore(entry.getValue().getOffShore());
-                employee3Row.setHeadCountOnsite(entry.getValue().getOnSite());
+                employee3Row.setIndiaCount(entry.getValue().getIndiaCount());
+                employee3Row.setUsCount(entry.getValue().getUsCount());
+                employee3Row.setCaCount(entry.getValue().getCaCount());
+                employee3Row.setOtherCount(entry.getValue().getOtherCount());
                 employeeArrayList.add(employee3Row);
             }
         } else {
@@ -225,8 +247,10 @@ public class VendorAnalytics {
                 employee2Row.setLevel1(employeeHashMap.get(firstLevelManager).getFullNameWithTitle());
                 employee2Row.setLevel2(employeeHashMap.get(secondLevelManager).getFullNameWithTitle());
                 employee2Row.setVendor(entry.getKey());
-                employee2Row.setHeadCountOffshore(entry.getValue().getOffShore());
-                employee2Row.setHeadCountOnsite(entry.getValue().getOnSite());
+                employee2Row.setIndiaCount(entry.getValue().getIndiaCount());
+                employee2Row.setUsCount(entry.getValue().getUsCount());
+                employee2Row.setCaCount(entry.getValue().getCaCount());
+                employee2Row.setOtherCount(entry.getValue().getOtherCount());
                 employeeArrayList.add(employee2Row);
             }
         } else {
@@ -247,8 +271,10 @@ public class VendorAnalytics {
                 employeeRow = new EmployeeRow();
                 employeeRow.setLevel1(employeeHashMap.get(firstLevelManager).getFullNameWithTitle());
                 employeeRow.setVendor(entry.getKey());
-                employeeRow.setHeadCountOffshore(entry.getValue().getOffShore());
-                employeeRow.setHeadCountOnsite(entry.getValue().getOnSite());
+                employeeRow.setIndiaCount(entry.getValue().getIndiaCount());
+                employeeRow.setUsCount(entry.getValue().getUsCount());
+                employeeRow.setCaCount(entry.getValue().getCaCount());
+                employeeRow.setOtherCount(entry.getValue().getOtherCount());
                 employeeArrayList.add(employeeRow);
             }
         } else {
@@ -268,8 +294,10 @@ public class VendorAnalytics {
                 employeeRow = new EmployeeRow();
                 employeeRow.setLevel1(employeeHashMap.get(firstLevelManager).getFullNameWithTitle());
                 employeeRow.setVendor(entry.getKey());
-                employeeRow.setHeadCountOffshore(entry.getValue().getOffShore());
-                employeeRow.setHeadCountOnsite(entry.getValue().getOnSite());
+                employeeRow.setIndiaCount(entry.getValue().getIndiaCount());
+                employeeRow.setUsCount(entry.getValue().getUsCount());
+                employeeRow.setCaCount(entry.getValue().getCaCount());
+                employeeRow.setOtherCount(entry.getValue().getOtherCount());
                 employeeArrayList.add(employeeRow);
             }
         }
@@ -286,8 +314,10 @@ public class VendorAnalytics {
                 employee2Row.setLevel1(employeeHashMap.get(firstLevelManager).getFullNameWithTitle());
                 employee2Row.setLevel2(employeeHashMap.get(secondLevelManager).getFullNameWithTitle());
                 employee2Row.setVendor(entry.getKey());
-                employee2Row.setHeadCountOffshore(entry.getValue().getOffShore());
-                employee2Row.setHeadCountOnsite(entry.getValue().getOnSite());
+                employee2Row.setIndiaCount(entry.getValue().getIndiaCount());
+                employee2Row.setUsCount(entry.getValue().getUsCount());
+                employee2Row.setCaCount(entry.getValue().getCaCount());
+                employee2Row.setOtherCount(entry.getValue().getOtherCount());
                 employeeArrayList.add(employee2Row);
             }
         }
@@ -305,8 +335,10 @@ public class VendorAnalytics {
                 employee3Row.setLevel2(employeeHashMap.get(secondLevelManager).getFullNameWithTitle());
                 employee3Row.setLevel3(employeeHashMap.get(thirdLevelManager).getFullNameWithTitle());
                 employee3Row.setVendor(entry.getKey());
-                employee3Row.setHeadCountOffshore(entry.getValue().getOffShore());
-                employee3Row.setHeadCountOnsite(entry.getValue().getOnSite());
+                employee3Row.setIndiaCount(entry.getValue().getIndiaCount());
+                employee3Row.setUsCount(entry.getValue().getUsCount());
+                employee3Row.setCaCount(entry.getValue().getCaCount());
+                employee3Row.setOtherCount(entry.getValue().getOtherCount());
                 employeeArrayList.add(employee3Row);
             }
         }
@@ -329,8 +361,10 @@ public class VendorAnalytics {
     }
 
     private void clearVendorMap() {
-        offShoreMap = new HashMap<>();
-        onsiteMap = new HashMap<>();
+        indiaLocationMap = new HashMap<>();
+        usLocationMap = new HashMap<>();
+        caLocationMap = new HashMap<>();
+        otherLocationMap = new HashMap<>();
         returnMap = new LinkedHashMap<>();
     }
 
@@ -339,21 +373,37 @@ public class VendorAnalytics {
             for (int j = 0; j < vendorEmployees.size(); j++) {
                 Employee employee = employeeHashMap.get(vendorEmployees.get(j));
                 if (employee != null) {
-                    if (offShoreLocations.indexOf(employee.getSite()) != -1) {
-                        if (offShoreMap.get(employee.getVendor()) == null) {
+                    if (location.getIndiaLocations().indexOf(employee.getSite()) != -1) {
+                        if (indiaLocationMap.get(employee.getVendor()) == null) {
                             ArrayList<String> employees = new ArrayList<>();
                             employees.add(employee.getUserName());
-                            offShoreMap.put(employee.getVendor(), employees);
+                            indiaLocationMap.put(employee.getVendor(), employees);
                         } else {
-                            offShoreMap.get(employee.getVendor()).add(employee.getUserName());
+                            indiaLocationMap.get(employee.getVendor()).add(employee.getUserName());
+                        }
+                    } else if (location.getUsLocations().indexOf(employee.getSite()) != -1) {
+                        if (usLocationMap.get(employee.getVendor()) == null) {
+                            ArrayList<String> employees = new ArrayList<>();
+                            employees.add(employee.getUserName());
+                            usLocationMap.put(employee.getVendor(), employees);
+                        } else {
+                            usLocationMap.get(employee.getVendor()).add(employee.getUserName());
+                        }
+                    } else if (location.getCanadaLocations().indexOf(employee.getSite()) != -1) {
+                        if (caLocationMap.get(employee.getVendor()) == null) {
+                            ArrayList<String> employees = new ArrayList<>();
+                            employees.add(employee.getUserName());
+                            caLocationMap.put(employee.getVendor(), employees);
+                        } else {
+                            caLocationMap.get(employee.getVendor()).add(employee.getUserName());
                         }
                     } else {
-                        if (onsiteMap.get(employee.getVendor()) == null) {
+                        if (otherLocationMap.get(employee.getVendor()) == null) {
                             ArrayList<String> employees = new ArrayList<>();
                             employees.add(employee.getUserName());
-                            onsiteMap.put(employee.getVendor(), employees);
+                            otherLocationMap.put(employee.getVendor(), employees);
                         } else {
-                            onsiteMap.get(employee.getVendor()).add(employee.getUserName());
+                            otherLocationMap.get(employee.getVendor()).add(employee.getUserName());
                         }
                     }
                 }
@@ -367,21 +417,37 @@ public class VendorAnalytics {
             for (int j = 0; j < subordinates.size(); j++) {
                 Employee employee = employeeHashMap.get(subordinates.get(j));
                 if (employee != null && employee.getType().equalsIgnoreCase("vendor")) {
-                    if (offShoreLocations.indexOf(employee.getSite()) != -1) {
-                        if (offShoreMap.get(employee.getVendor()) == null) {
+                    if (location.getIndiaLocations().indexOf(employee.getSite()) != -1) {
+                        if (indiaLocationMap.get(employee.getVendor()) == null) {
                             ArrayList<String> employees = new ArrayList<>();
                             employees.add(employee.getUserName());
-                            offShoreMap.put(employee.getVendor(), employees);
+                            indiaLocationMap.put(employee.getVendor(), employees);
                         } else {
-                            offShoreMap.get(employee.getVendor()).add(employee.getUserName());
+                            indiaLocationMap.get(employee.getVendor()).add(employee.getUserName());
+                        }
+                    } else if (location.getUsLocations().indexOf(employee.getSite()) != -1) {
+                        if (usLocationMap.get(employee.getVendor()) == null) {
+                            ArrayList<String> employees = new ArrayList<>();
+                            employees.add(employee.getUserName());
+                            usLocationMap.put(employee.getVendor(), employees);
+                        } else {
+                            usLocationMap.get(employee.getVendor()).add(employee.getUserName());
+                        }
+                    } else if (location.getCanadaLocations().indexOf(employee.getSite()) != -1) {
+                        if (caLocationMap.get(employee.getVendor()) == null) {
+                            ArrayList<String> employees = new ArrayList<>();
+                            employees.add(employee.getUserName());
+                            caLocationMap.put(employee.getVendor(), employees);
+                        } else {
+                            caLocationMap.get(employee.getVendor()).add(employee.getUserName());
                         }
                     } else {
-                        if (onsiteMap.get(employee.getVendor()) == null) {
+                        if (otherLocationMap.get(employee.getVendor()) == null) {
                             ArrayList<String> employees = new ArrayList<>();
                             employees.add(employee.getUserName());
-                            onsiteMap.put(employee.getVendor(), employees);
+                            otherLocationMap.put(employee.getVendor(), employees);
                         } else {
-                            onsiteMap.get(employee.getVendor()).add(employee.getUserName());
+                            otherLocationMap.get(employee.getVendor()).add(employee.getUserName());
                         }
                     }
                 }
@@ -391,21 +457,28 @@ public class VendorAnalytics {
     }
 
     private HashMap fetchVendorCount() {
-        String[] offShoreKeyArray = offShoreMap.keySet().toArray(new String[offShoreMap.size()]);
-        String[] onsiteKeyArray = onsiteMap.keySet().toArray(new String[onsiteMap.size()]);
-        List list = new ArrayList(Arrays.asList(offShoreKeyArray));
-        list.addAll(Arrays.asList(onsiteKeyArray));
+        String[] indiaKeyArray = indiaLocationMap.keySet().toArray(new String[indiaLocationMap.size()]);
+        String[] usKeyArray = usLocationMap.keySet().toArray(new String[usLocationMap.size()]);
+        String[] caKeyArray = caLocationMap.keySet().toArray(new String[caLocationMap.size()]);
+        String[] otherKeyArray = otherLocationMap.keySet().toArray(new String[otherLocationMap.size()]);
+        List list = new ArrayList(Arrays.asList(indiaKeyArray));
+        list.addAll(Arrays.asList(usKeyArray));
+        list.addAll(Arrays.asList(caKeyArray));
+        list.addAll(Arrays.asList(otherKeyArray));
+
         List<String> distinctElements = (List<String>) list.stream().distinct().collect(Collectors.toList());
-        for (String distinctElement : distinctElements
-        ) {
-            Integer offshoreHeadCount = offShoreMap.get(distinctElement) != null ? offShoreMap.get(distinctElement).size() : 0;
-            Integer onsiteHeadCount = onsiteMap.get(distinctElement) != null ? onsiteMap.get(distinctElement).size() : 0;
-            returnMap.put(distinctElement, new HeadCount(offshoreHeadCount, onsiteHeadCount));
+        for (String distinctElement : distinctElements) {
+            Integer indiaHeadCount = indiaLocationMap.get(distinctElement) != null ? indiaLocationMap.get(distinctElement).size() : 0;
+            Integer usHeadCount = usLocationMap.get(distinctElement) != null ? usLocationMap.get(distinctElement).size() : 0;
+            Integer caHeadCount = caLocationMap.get(distinctElement) != null ? caLocationMap.get(distinctElement).size() : 0;
+            Integer otherHeadCount = otherLocationMap.get(distinctElement) != null ? otherLocationMap.get(distinctElement).size() : 0;
+            returnMap.put(distinctElement, new HeadCount(indiaHeadCount, usHeadCount, caHeadCount, otherHeadCount));
         }
         return returnMap;
     }
 
     private void setOffShoreLocations() {
+
         offShoreLocations.add("BANGALORE");
         offShoreLocations.add("MUMBAI");
         offShoreLocations.add("PUNE");
@@ -414,6 +487,10 @@ public class VendorAnalytics {
         offShoreLocations.add("GURGAON");
         offShoreLocations.add("NEW DELHI");
         offShoreLocations.add("CHENNAI");
+        offShoreLocations.add("VIJAYAWADA");
+        offShoreLocations.add("KOLKATA");
+        offShoreLocations.add("AHMEDABAD");
+        offShoreLocations.add("HYDERABAD");
     }
 
     private void analyzeExcelAndMapEmployeeInformation() {
@@ -421,10 +498,7 @@ public class VendorAnalytics {
             throw new IllegalArgumentException("Path must be a directory!");
         }
         try (Stream<Path> paths = Files.walk(Paths.get(inDirectoryPath), 1)) {
-            paths
-                    .filter(Files::isRegularFile)
-                    .filter(p -> p.getFileName().toString().endsWith(".xlsx"))
-                    .forEach(path -> extractEmployeeInformation(String.valueOf(path)));
+            paths.filter(Files::isRegularFile).filter(p -> p.getFileName().toString().endsWith(".xlsx")).forEach(path -> extractEmployeeInformation(String.valueOf(path)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -465,8 +539,7 @@ public class VendorAnalytics {
     }
 
     private void formManagerToEmployeeMappings(List<Employee> listOfAllEmployees) {
-        for (Employee employee : listOfAllEmployees
-        ) {
+        for (Employee employee : listOfAllEmployees) {
             employeeHashMap.put(employee.getUserName(), employee);
             String empManager = employee.getManager();
             if (empToManagerMap.containsKey(empManager)) {

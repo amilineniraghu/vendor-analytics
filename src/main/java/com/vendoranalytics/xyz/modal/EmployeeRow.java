@@ -7,21 +7,12 @@ public class EmployeeRow {
     private String level3;
     private String level4;
     private String vendor;
-    private Integer headCountOnsite;
-    private Integer headCountOffshore;
+    private Integer usCount;
+    private Integer indiaCount;
+    private Integer caCount;
+    private Integer otherCount;
 
     public EmployeeRow() {
-    }
-
-    public EmployeeRow(String buName, String level1, String level2, String level3, String level4, String vendor, Integer headCountOnsite, Integer headCountOffshore) {
-        this.buName = buName;
-        this.level1 = level1;
-        this.level2 = level2;
-        this.level3 = level3;
-        this.level4 = level4;
-        this.vendor = vendor;
-        this.headCountOnsite = headCountOnsite;
-        this.headCountOffshore = headCountOffshore;
     }
 
     public String getBuName() {
@@ -72,20 +63,36 @@ public class EmployeeRow {
         this.vendor = vendor;
     }
 
-    public Integer getHeadCountOnsite() {
-        return headCountOnsite;
+    public Integer getUsCount() {
+        return usCount;
     }
 
-    public void setHeadCountOnsite(Integer headCountOnsite) {
-        this.headCountOnsite = headCountOnsite;
+    public void setUsCount(Integer usCount) {
+        this.usCount = usCount;
     }
 
-    public Integer getHeadCountOffshore() {
-        return headCountOffshore;
+    public Integer getIndiaCount() {
+        return indiaCount;
     }
 
-    public void setHeadCountOffshore(Integer headCountOffshore) {
-        this.headCountOffshore = headCountOffshore;
+    public void setIndiaCount(Integer indiaCount) {
+        this.indiaCount = indiaCount;
+    }
+
+    public Integer getCaCount() {
+        return caCount;
+    }
+
+    public void setCaCount(Integer caCount) {
+        this.caCount = caCount;
+    }
+
+    public Integer getOtherCount() {
+        return otherCount;
+    }
+
+    public void setOtherCount(Integer otherCount) {
+        this.otherCount = otherCount;
     }
 
     @Override
@@ -97,8 +104,10 @@ public class EmployeeRow {
                 ", level3='" + level3 + '\'' +
                 ", level4='" + level4 + '\'' +
                 ", vendor='" + vendor + '\'' +
-                ", headCountOnsite=" + headCountOnsite +
-                ", headCountOffshore=" + headCountOffshore +
+                ", usCount=" + usCount +
+                ", indiaCount=" + indiaCount +
+                ", caCount=" + caCount +
+                ", otherCount=" + otherCount +
                 '}';
     }
 }
